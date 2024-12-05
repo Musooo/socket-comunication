@@ -4,14 +4,17 @@ CFLAGS = -Wall -Wextra -std=c99 -O2
 
 CLIENT_SRC = client.c
 SERVER_SRC = server.c
+TESTING_SRC = test.c
 
 CLIENT_OBJ = $(CLIENT_SRC:.c=.o)
 SERVER_OBJ = $(SERVER_SRC:.c=.o)
+TESTING_OBJ = $(TESTING_SRC:.c=.o)
 
 CLIENT_TARGET = client
 SERVER_TARGET = server
+TESTING_TARGET = testing
 
-all: $(CLIENT_TARGET) $(SERVER_TARGET)
+all: $(CLIENT_TARGET) $(SERVER_TARGET) $(TESTING_TARGET)
 
 $(CLIENT_TARGET): $(CLIENT_OBJ)
 	$(CC) $(CLIENT_OBJ) -o $(CLIENT_TARGET)
@@ -19,11 +22,14 @@ $(CLIENT_TARGET): $(CLIENT_OBJ)
 $(SERVER_TARGET): $(SERVER_OBJ)
 	$(CC) $(SERVER_OBJ) -o $(SERVER_TARGET)
 
+$(TESTING_TARGET): $(TESTING_OBJ)
+	$(CC) $(TESTING_OBJ) -o $(TESTING_TARGET)
+
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(CLIENT_OBJ) $(SERVER_OBJ) $(CLIENT_TARGET) $(SERVER_TARGET)
+	rm -f $(CLIENT_OBJ) $(SERVER_OBJ) $(TESTING_OBJ) $(CLIENT_TARGET) $(SERVER_TARGET) $(TESTING_TARGET)
 
 run_client: $(CLIENT_TARGET)
 	./$(CLIENT_TARGET)
@@ -31,4 +37,7 @@ run_client: $(CLIENT_TARGET)
 run_server: $(SERVER_TARGET)
 	./$(SERVER_TARGET)
 
-.PHONY: all clean run_client run_server
+run_test: $(TESTING_TARGET)
+	./$(TESTING_TARGET)
+
+.PHONY: all clean run_client run_server run_test
