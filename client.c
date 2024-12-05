@@ -19,7 +19,7 @@ int main(int argc, char *argv[]){ // [1] name [2] age
         printf("Usage: %s <name> <age>\n", argv[0]);
         return 1;
     }
-    
+
     int status, valread, client_fd;
     struct sockaddr_in serv_addr;
 

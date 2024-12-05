@@ -6,6 +6,19 @@ int totj = 0;
 int totm = 0;
 int tots = 0;
 
+char getcategory(int *age){
+    if (*age<16){
+        totj++;
+        return 'J';
+    }else if(*age>60){
+        tots++;
+        return 'S';
+    }else {
+        totm++;
+        return 'M';
+    }
+}
+
 int pow(int n,int b){
     if (b==0){
         return 1;
