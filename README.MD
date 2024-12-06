@@ -49,7 +49,7 @@ Replace `<name>` with the name you want to send and `<age>` with the age. For ex
 make run_client ARGS="Alice 30"
 ```
 
-The client will send the message to the server, and the server will respond with a greeting message.
+The client will send the message to the server, and the server will respond with the person identifier.
 
 ## Clean Up
 
