@@ -5,6 +5,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #define PORT 20002
+#define MESSAGE_SEPARATOR "-"
 
 int len(char *string) {
     if (*string == '\0') {
@@ -23,8 +24,11 @@ int main(int argc, char *argv[]){ // [1] name [2] age
     int status, valread, client_fd;
     struct sockaddr_in serv_addr;
 
-    char *message = malloc(len(argv[1])+len(argv[2])+1);
-    char *hello = "Hello from client";
+    char *message = malloc(len(argv[1])+len(argv[2])+1+1); //+1 for '\0' char and for '-'
+    strcpy(message, argv[1]);
+    strcat(message, MESSAGE_SEPARATOR);
+    strcat(message, argv[2]);
+
     char buffer[1024] = { 0 };
 
     if ((client_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
@@ -50,12 +54,12 @@ int main(int argc, char *argv[]){ // [1] name [2] age
         return -1;
     }
 
-    send(client_fd, hello, len(hello), 0);
+    send(client_fd, message, len(argv[1])+len(argv[2])+1, 0);
     printf("Information sent to the server\n");
     valread = read(client_fd, buffer,
                    1024 - 1);
     printf("%s\n", buffer);
-    
+
     close(client_fd);
     free(message);
     return 0;

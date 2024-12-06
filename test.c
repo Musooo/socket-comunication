@@ -2,8 +2,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-
-
 int len(char *string) {
     if (*string == '\0') {
         return 0; //the \0 char not count for the string length in our world
@@ -22,14 +20,32 @@ char getcategory(int *age){
     }
 }
 
+void messageprocess(char *name, char *age, const char *msg) {
+    int mod = 0;
+
+    while (*msg != '\0') {
+        if (*msg == '-') {
+            mod++;
+        } else if (!mod) {
+            *name = *msg;
+            name++;
+        } else {
+            *age = *msg;
+            age++;
+        }
+        msg++;
+    }
+    *name = '\0';
+    *age = '\0';
+}
+
+
+
 int main(int argc, char *argv[]){
-    int age = atoi(argv[1]);
-    char *message = malloc(1+1+len(argv[1]));
-    printf("%d\n", age);
-    printf("%c\n", getcategory(&age));
-    message[0] = getcategory(&age);
-    
-    printf("%s\n", message);
-    free(message);
+
+    int num = 100;
+
+    printf("%c\n", num);
+
     return 0;
 }

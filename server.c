@@ -14,16 +14,40 @@ int totj = 0;
 int totm = 0;
 int tots = 0;
 
-char getcategory(int *age){
+typedef struct{
+    char category;
+    int number;
+}identifier;
+
+
+int len(char *string) {
+    if (*string == '\0') {
+        return 0; //the \0 char not count for the string length in our world
+    }
+
+    return 1 + len(string + 1);
+}
+
+identifier getcategory(int *age){
+    identifier person ;
     if (*age<16){
         totj++;
-        return 'J';
+        person.category = 'J';
+        person.number = totj;
+        return person;
+        //return 'J';
     }else if(*age>60){
         tots++;
-        return 'S';
+        person.category = 'S';
+        person.number = tots;
+        return person;
+        //return 'S';
     }else {
         totm++;
-        return 'M';
+        person.category = 'M';
+        person.number = totm;
+        return person;
+        //return 'M';
     }
 }
 
@@ -42,13 +66,31 @@ int stringtoint(char *arr,int pos,int index){
     return (arr[index]-48)*pow(10,pos-1)+stringtoint(arr,pos-1,index+1);
 }
 
+void messageprocess(char *name, char *age, const char *msg) {
+    int mod = 0;
+
+    while (*msg != '\0') {
+        if (*msg == '-') {
+            mod++;
+        } else if (!mod) {
+            *name = *msg;
+            name++;
+        } else {
+            *age = *msg;
+            age++;
+        }
+        msg++;
+    }
+    *name = '\0';
+    *age = '\0';
+}
+
 int main(int argc, char *argv[]){
         int server_fd, new_socket, valread;
     struct sockaddr_in address;
     int opt = 1;
     int addrlen = sizeof(address);
     char buffer[1024] = {0};
-    char *hello = "Hello from server";
 
     // Creating socket file descriptor
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
@@ -83,8 +125,32 @@ int main(int argc, char *argv[]){
         valread = read(new_socket, buffer, 1024 - 1); // subtract 1 for the '\0'
         buffer[valread] = '\0'; // Ensure null-terminated string
         printf("%s\n", buffer);
-        send(new_socket, hello, strlen(hello), 0);
-        printf("Hello message sent\n");
+        //TODO break the while
+        
+        char *name = malloc(valread + 1);
+        char *agestring = malloc(valread + 1);
+        if (name == NULL || agestring == NULL) {
+            perror("Failed to allocate memory");
+            close(new_socket);
+            continue;
+        }
+
+        messageprocess(name,agestring,buffer);
+        int age = stringtoint(agestring, len(agestring), 0);
+        //char category = getcategory(&age);
+        identifier person = getcategory(&age);
+        char *message = malloc(100);
+        char number[50];
+        sprintf(number, "%d", person.number);
+        strcpy(message, &person.category);
+        strcat(message, number);
+ 
+        send(new_socket, message, len(message), 0);
+        printf("identifier sent\n");
+
+        free(name);
+        free(agestring);
+        free(message);
 
         // closing the connected socket
         close(new_socket);
