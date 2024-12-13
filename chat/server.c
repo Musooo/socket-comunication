@@ -82,11 +82,12 @@ int main() {
                 memmove(buffer, buffer + 2, strlen(buffer) - 1);
                 //printf("done\n");
                 // manda il messaggio a tutti gli altri client
-                for (int i = 0; i < sizeof(userarr) / sizeof(userarr[0]); i++) {
-                    if (userarr[i].client.sin_addr.s_addr != cliaddr.sin_addr.s_addr || 
-                        userarr[i].client.sin_port != cliaddr.sin_port) {
-                        sendto(listenfd, buffer, strlen(buffer), 0, (struct sockaddr*)&userarr[i].client, sizeof(userarr[i].client));                        
-                    }
+                for (int i = 0; i < size; i++) {
+                    if (cliaddr.sin_addr.s_addr == userarr[i].client.sin_addr.s_addr &&
+                        cliaddr.sin_port == userarr[i].client.sin_port) {
+                            continue;
+                        }
+                    sendto(listenfd, buffer, strlen(buffer), 0, (struct sockaddr*)&userarr[i].client, sizeof(userarr[i].client));
                 }
             }else {
                 sendto(listenfd, message, strlen(message), 0, (struct sockaddr*)&cliaddr, sizeof(cliaddr));
