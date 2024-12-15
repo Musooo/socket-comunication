@@ -61,6 +61,9 @@ void *keylistener(void *ptr){
         case '3':
             exit(0);
             break;
+        case '4':
+            printf("no");
+            break;
         default:
             break;
         }
@@ -77,6 +80,7 @@ void *messageprinter(void *ptr){
 int main(int argc, char **argv) {
     if (argc != 2)
         return -1;
+    printf("Benvenuto nella chat di Topolino \npremere '2' per scrivere un messaggio \n'3' per uscire \n'4' per usare lo strumentopolo");
     pthread_t keylt_id;
     char buffer[100]; 
     char *message = malloc(strlen(argv[1])+2); 
