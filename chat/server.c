@@ -5,7 +5,6 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include "func.h"
 #include <pthread.h>
 #include <unistd.h>
 #include <termios.h>
@@ -49,7 +48,8 @@ void *countt(void *ptr){
 
 int main() {
     pthread_t thread_id;
-    char buffer[100]; 
+    char buffer[1024];
+    char usermessage[1024]; 
     char *message = "Hello Client"; 
     int listenfd, len; 
     struct sockaddr_in servaddr, cliaddr; 
@@ -64,7 +64,8 @@ int main() {
     bind(listenfd, (struct sockaddr*)&servaddr, sizeof(servaddr)); 
     pthread_create(&thread_id, NULL, countt, NULL);
     while (1) {
-        // receive the datagram 
+        // memset(buffer, 0, sizeof(buffer));
+        // memset(usermessage, 0, sizeof(usermessage));
         len = sizeof(cliaddr); 
         int n = recvfrom(listenfd, buffer, sizeof(buffer) - 1, 0, (struct sockaddr*)&cliaddr, &len); // receive message from server 
         
@@ -79,15 +80,16 @@ int main() {
                 sendto(listenfd, buffer, strlen(buffer), 0, (struct sockaddr*)&cliaddr, sizeof(cliaddr));
             } else if (buffer[0] == '4' && buffer[1] == '2') {
                 //printf("we\n");
-                memmove(buffer, buffer + 2, strlen(buffer) - 1);
+                memmove(buffer, buffer + 2, strlen(buffer) - 1);                
                 //printf("done\n");
-                // manda il messaggio a tutti gli altri client
                 for (int i = 0; i < size; i++) {
                     if (cliaddr.sin_addr.s_addr == userarr[i].client.sin_addr.s_addr &&
                         cliaddr.sin_port == userarr[i].client.sin_port) {
                             continue;
                         }
-                    sendto(listenfd, buffer, strlen(buffer), 0, (struct sockaddr*)&userarr[i].client, sizeof(userarr[i].client));
+                    snprintf(usermessage, sizeof(usermessage), "%s: %s", userarr[i].name, buffer);
+                    sendto(listenfd, usermessage, strlen(usermessage), 0, (struct sockaddr*)&userarr[i].client, sizeof(userarr[i].client));
+                    //printf("%s\n", usermessage);
                 }
             }else {
                 sendto(listenfd, message, strlen(message), 0, (struct sockaddr*)&cliaddr, sizeof(cliaddr));

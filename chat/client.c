@@ -10,7 +10,6 @@
 #include <termios.h>
 #include <pthread.h>
 
-#include "func.h"
 
 #define IPADDRESS "127.0.0.1"
 #define PORT 1313
@@ -22,7 +21,6 @@ char messaggio[100];
 typedef struct {
     struct sockaddr_in servaddr;
     int sockfd;
-    /* data */
 }threadlistenersockets;
 
 
@@ -70,13 +68,18 @@ void *keylistener(void *ptr){
     }
 }
 
+void *messageprinter(void *ptr){
+    while (1){
+        
+    }
+}
 
 int main(int argc, char **argv) {
     if (argc != 2)
         return -1;
     pthread_t keylt_id;
     char buffer[100]; 
-    char *message = malloc(len(argv[1])+2); 
+    char *message = malloc(strlen(argv[1])+2); 
     strcpy(message, "0"); //init message
     strcat(message, argv[1]);
 
@@ -98,9 +101,6 @@ int main(int argc, char **argv) {
         exit(0); 
     } 
   
-    // request to send datagram 
-    // no need to specify server address in sendto 
-    // connect stores the peers IP and port 
     sendto(sockfd, message, 1000, 0, (struct sockaddr*)NULL, sizeof(servaddr)); 
     free(message);
 
@@ -114,6 +114,7 @@ int main(int argc, char **argv) {
         // waiting for response 
         recvfrom(sockfd, buffer, sizeof(buffer), 0, (struct sockaddr*)NULL, NULL); 
         puts(buffer);
+        memset(buffer, 0, sizeof(buffer));
     }
  
 
