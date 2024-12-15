@@ -17,6 +17,10 @@
 char currentchar;
 struct termios orig_termios;
 char messaggio[100];
+int status = 1;
+char *messagearr[1024];
+int posmsgarr;
+int msgarrlen;
 
 typedef struct {
     struct sockaddr_in servaddr;
@@ -46,6 +50,7 @@ void *keylistener(void *ptr){
         currentchar = getchar();
         switch (currentchar){
         case '2':
+            status = 0;
             resetterminal();
             fgets(messaggio, sizeof(messaggio), stdin);
             messaggio[strcspn(messaggio, "\n")] = 0;
@@ -56,13 +61,14 @@ void *keylistener(void *ptr){
             sendto(tsockets.sockfd, new_message, strlen(new_message), 0, (struct sockaddr*)&tsockets.servaddr, sizeof(tsockets.servaddr)); 
             
             printf("you: %s\n", new_message);
+            status = 1;
             configure_terminal();
             break;
         case '3':
             exit(0);
             break;
         case '4':
-            printf("no");
+            printf("no\n");
             break;
         default:
             break;
@@ -73,15 +79,20 @@ void *keylistener(void *ptr){
 
 void *messageprinter(void *ptr){
     while (1){
-        
+        if (status){
+            if (posmsgarr != msgarrlen){
+                printf("%s\n", messagearr[posmsgarr]);
+                posmsgarr++;
+            }
+        }
     }
 }
 
 int main(int argc, char **argv) {
     if (argc != 2)
         return -1;
-    printf("Benvenuto nella chat di Topolino \npremere '2' per scrivere un messaggio \n'3' per uscire \n'4' per usare lo strumentopolo");
-    pthread_t keylt_id;
+    printf("Benvenuto nella chat di Topolino \npremere\n '2' per scrivere un messaggio \n'3' per uscire \n'4' per usare lo strumentopolo");
+    pthread_t keylt_id, printer_id;
     char buffer[100]; 
     char *message = malloc(strlen(argv[1])+2); 
     strcpy(message, "0"); //init message
@@ -114,10 +125,13 @@ int main(int argc, char **argv) {
 
     configure_terminal();
     pthread_create(&keylt_id, NULL, keylistener, (void *) &tsockets);
+    pthread_create(&printer_id, NULL, messageprinter, NULL);
     while (1){
         // waiting for response 
         recvfrom(sockfd, buffer, sizeof(buffer), 0, (struct sockaddr*)NULL, NULL); 
-        puts(buffer);
+        //puts(buffer);
+        messagearr[msgarrlen] = strdup(buffer);
+        msgarrlen++;
         memset(buffer, 0, sizeof(buffer));
     }
  
